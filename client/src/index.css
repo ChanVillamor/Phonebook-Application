@@ -1,0 +1,61 @@
+@import "tailwindcss";
+
+:root {
+    --primary: #ffe3d8;
+    --secondary: #e3b6b1;
+    
+}
+
+/* Custom scrollbar styles */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: var(--secondary);
+    border-radius: 20px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: #d4a19c;
+}
+
+.bg-primary {
+    background-color: var(--primary);
+}
+
+.bg-secondary {
+    background-color: var(--secondary);
+}
+
+.text-primary {
+    color: var(--primary);
+}
+
+.text-secondary {
+    color: var(--secondary);
+}
+
+.bg-secondary\/20 {
+    background-color: rgba(227, 182, 177, 0.2);
+}
+
+.bg-secondary\/90 {
+    background-color: rgba(227, 182, 177, 0.9);
+}
+
+.bg-secondary\/10 {
+    background-color: rgba(227, 182, 177, 0.1);
+}
+
+.hover\:bg-secondary\/90:hover {
+    background-color: rgba(227, 182, 177, 0.9);
+}
+
+.focus\:ring-secondary:focus {
+    --tw-ring-color: var(--secondary);
+}

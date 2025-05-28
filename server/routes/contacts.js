@@ -29,11 +29,20 @@ const upload = multer({
     }
 });
 
-// Get all contacts
+// Get all contacts, grouped by first letter of name
 router.get('/', async (req, res) => {
     try {
         const contacts = await Contact.find().sort({ name: 1 });
-        res.json(contacts);
+        // Group contacts by first letter
+        const grouped = contacts.reduce((acc, contact) => {
+            const firstLetter = contact.name.charAt(0).toUpperCase();
+            if (!acc[firstLetter]) {
+                acc[firstLetter] = [];
+            }
+            acc[firstLetter].push(contact);
+            return acc;
+        }, {});
+        res.json(grouped);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -104,27 +113,43 @@ router.post('/', upload.single('image'), async (req, res) => {
 });
 
 // Update contact
+const fs = require('fs').promises;  // use promises API for fs
+
 router.put('/:id', upload.single('image'), async (req, res) => {
-    try {
-        const updateData = { ...req.body };
-        if (req.file) {
-            updateData.image = req.file.path;
-        }
-
-        const contact = await Contact.findByIdAndUpdate(
-            req.params.id,
-            updateData,
-            { new: true }
-        );
-
-        if (!contact) {
-            return res.status(404).json({ message: 'Contact not found' });
-        }
-        res.json(contact);
-    } catch (error) {
-        res.status(400).json({ message: error.message });
+  try {
+    const contact = await Contact.findById(req.params.id);
+    if (!contact) {
+      return res.status(404).json({ message: 'Contact not found' });
     }
+
+    const updateData = { ...req.body };
+
+    if (req.file) {
+      // Delete old image file if exists
+      if (contact.image) {
+        const oldImagePath = path.resolve(__dirname, '..', contact.image);
+        try {
+          await fs.access(oldImagePath);  // check if file exists
+          await fs.unlink(oldImagePath);  // delete file
+          console.log('Old image deleted:', oldImagePath);
+        } catch (err) {
+          // file does not exist or other error
+          console.warn('Old image not found or cannot delete:', oldImagePath);
+        }
+      }
+
+      updateData.image = req.file.path;  // update with new image path
+    }
+
+    const updatedContact = await Contact.findByIdAndUpdate(req.params.id, updateData, { new: true });
+    res.json(updatedContact);
+
+  } catch (error) {
+    console.error('Error updating contact:', error);
+    res.status(400).json({ message: error.message });
+  }
 });
+
 
 // Toggle favorite status
 router.patch('/:id/favorite', async (req, res) => {

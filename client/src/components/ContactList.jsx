@@ -21,12 +21,35 @@ const ContactList = ({ onEditContact, onViewContact, refreshKey }) => {
     fetchContacts();
   }, [refreshKey]);
 
+  // Add this function inside your ContactList component (above fetchContacts or outside the component)
+  const bubbleSortContacts = (arr) => {
+    const contacts = [...arr];
+    let n = contacts.length;
+    let swapped;
+
+    do {
+      swapped = false;
+      for (let i = 1; i < n; i++) {
+        if (
+          contacts[i - 1].name.toLowerCase() > contacts[i].name.toLowerCase()
+        ) {
+          [contacts[i - 1], contacts[i]] = [contacts[i], contacts[i - 1]];
+          swapped = true;
+        }
+      }
+      n--;
+    } while (swapped);
+
+    return contacts;
+  };
+
   const fetchContacts = async () => {
     try {
       const response = await api.get("/api/contacts");
-      const sortedContacts = response.data.sort((a, b) =>
-        a.name.localeCompare(b.name)
-      );
+      // Flatten grouped contacts into a single array
+      const grouped = response.data;
+      const allContacts = Object.values(grouped).flat();
+      const sortedContacts = bubbleSortContacts(allContacts);
       setContacts(sortedContacts);
       filterAndGroupContacts(sortedContacts);
     } catch (error) {
@@ -52,9 +75,9 @@ const ContactList = ({ onEditContact, onViewContact, refreshKey }) => {
     if (searchQuery) {
       filteredContacts = contactsList.filter(
         (contact) =>
-          contact.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          contact.name.toLowerCase().startsWith(searchQuery.toLowerCase()) ||
           contact.mobileNo.includes(searchQuery) ||
-          contact.email?.toLowerCase().includes(searchQuery.toLowerCase())
+          contact.email?.toLowerCase().startsWith(searchQuery.toLowerCase())
       );
     }
 

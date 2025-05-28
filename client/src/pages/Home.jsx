@@ -94,6 +94,7 @@ const Home = () => {
           onClose={handleCloseCard}
           onEdit={() => handleEditContact(viewingContact)}
           onRefresh={handleRefresh}
+          onSave={handleRefresh} // <-- add this line with your refresh function
         />
       )}
     </div>

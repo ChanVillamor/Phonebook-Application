@@ -315,7 +315,7 @@ const ContactForm = ({ onClose, onSave, initialData = null }) => {
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 text-black transition-colors duration-300 rounded-lg bg-secondary hover:bg-secondary/90 flex items-center justify-center gap-2"
+                className="flex items-center justify-center gap-2 px-4 py-2 text-black transition-colors duration-300 rounded-lg bg-secondary hover:bg-secondary/90"
               >
                 {initialData ? (
                   <>

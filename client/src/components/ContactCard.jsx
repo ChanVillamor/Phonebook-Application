@@ -11,8 +11,9 @@ import {
 import { HeartIcon as HeartIconSolid } from "@heroicons/react/24/solid";
 import { SocialIcon } from "react-social-icons";
 import api from "../config/api";
+import { toast } from "react-hot-toast";
 
-const ContactCard = ({ contact, onClose, onEdit, onRefresh }) => {
+const ContactCard = ({ contact, onClose, onEdit, onRefresh, onSave }) => {
   const getStatusColor = (status) => {
     switch (status) {
       case "hotline":
@@ -28,13 +29,23 @@ const ContactCard = ({ contact, onClose, onEdit, onRefresh }) => {
     }
   };
 
-  const handleDelete = async () => {
+  const handleDelete = async (contactId) => {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this contact?"
+    );
+    if (!confirmed) return; // User canceled
+
     try {
-      await api.delete(`/api/contacts/${contact._id}`);
-      onRefresh();
-      onClose();
+      await api.delete(`/api/contacts/${contactId}`);
+      toast.success("Contact deleted successfully!");
+      onSave(); // refresh data or update UI after delete
+      onClose(); // close modal or dialog if needed
     } catch (error) {
       console.error("Error deleting contact:", error);
+      toast.error(
+        error.response?.data?.message ||
+          "Error deleting contact. Please try again."
+      );
     }
   };
 
@@ -135,32 +146,24 @@ const ContactCard = ({ contact, onClose, onEdit, onRefresh }) => {
             {(contact.facebook || contact.instagram) && (
               <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-xl">
                 {contact.facebook && (
-                  <a
-                    href={contact.facebook}
+                  <SocialIcon
+                    url={contact.facebook}
+                    network="facebook"
+                    style={{ height: 35, width: 35 }}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="transition-opacity hover:opacity-80"
-                  >
-                    <SocialIcon
-                      url={contact.facebook}
-                      network="facebook"
-                      style={{ height: 35, width: 35 }}
-                    />
-                  </a>
+                  />
                 )}
                 {contact.instagram && (
-                  <a
-                    href={contact.instagram}
+                  <SocialIcon
+                    url={contact.instagram}
+                    network="instagram"
+                    style={{ height: 35, width: 35 }}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="transition-opacity hover:opacity-80"
-                  >
-                    <SocialIcon
-                      url={contact.instagram}
-                      network="instagram"
-                      style={{ height: 35, width: 35 }}
-                    />
-                  </a>
+                  />
                 )}
               </div>
             )}
@@ -177,7 +180,7 @@ const ContactCard = ({ contact, onClose, onEdit, onRefresh }) => {
 
           <div className="flex justify-end space-x-2">
             <button
-              onClick={handleDelete}
+              onClick={() => handleDelete(contact._id)}
               className="flex items-center px-4 py-2 space-x-2 text-red-600 transition-colors duration-300 rounded-lg hover:bg-red-50"
             >
               <TrashIcon className="w-5 h-5" />

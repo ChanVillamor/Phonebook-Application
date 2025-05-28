@@ -48,6 +48,10 @@ npm run dev
    - Delete node_modules folder
    - Run `npm install` again
 
+3. If server error:
+   - cd server -> run this: taskkill /PID 40252 /F
+   - npm run dev
+
 ---
 
 Created for Design Analysis and Algorithm Course
